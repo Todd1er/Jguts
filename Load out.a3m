@@ -1,31 +1,33 @@
 from win32com.client import Dispatch, gencache # API Windows
 import pythoncom
-def X_Y(Object):
 
-    VertexArray = iSelectedObject.VertexParamsArray
-    Count = iSelectedObject.VertexCount
-    f.write(iSelectedObject.Name + "\n")
-    for Vertex in VertexArray:
-        f.write(str(Vertex.GetParamVertex(x,y,z,value))[7:].rstrip(')') + ";\n")
+def X_Y(Object): #Функция обработки объекта
 
-f = open(r'C:\Users\drnks\OneDrive\Desktop\Coords.txt', 'w', encoding='utf-8')
+    VertexArray = iSelectedObject.VertexParamsArray #Массив точек объекта
+    Count = iSelectedObject.VertexCount #Кол-во точек объекта
+    f.write(iSelectedObject.Name + "\n") #Вывод имени
+    for Vertex in VertexArray: 
+        f.write(str(Vertex.GetParamVertex(x,y,z,value))[7:].rstrip(')') + ";\n") #Вывод коориднат каждой точки из массива
 
-# API5
+f = open(r'C:\Users\drnks\OneDrive\Desktop\Coords.txt', 'w', encoding='utf-8')#Файл вывода
+
+#подключение API5
 kompas6_api5_module = gencache.EnsureModule("{0422828C-F174-495E-AC5D-D31014DBBE87}", 0, 1, 0)
 kompas_object = kompas6_api5_module.KompasObject(Dispatch("Kompas.Application.5")._oleobj_.QueryInterface(kompas6_api5_module.KompasObject.CLSID, pythoncom.IID_IDispatch))
-iDocument3D = kompas_object.ActiveDocument3D()
+iDocument3D = kompas_object.ActiveDocument3D() #Активный документ в API5
 
-x,y,z,value = 0.0, 0.0, 0.0, 0.0
+x,y,z,value = 0.0, 0.0, 0.0, 0.0 #Инициализация значений координат
 
+#подключение API7
 KompasAPI7 = gencache.EnsureModule('{69AC2981-37C0-4379-84FD-5DD2F3C0A520}', 0, 1, 0) # API7
 iApplication = Dispatch('Kompas.Application.7')
-iKompasDocument = iApplication.ActiveDocument
+iKompasDocument = iApplication.ActiveDocument #Активный документ в API7
 
-iKompasDocument3D = KompasAPI7.IKompasDocument3D(iKompasDocument)
-iSelectionManager = iKompasDocument3D.SelectionManager
-iSelectedObjects = iSelectionManager.SelectedObjects
-if isinstance(iSelectedObjects, tuple):
-    for iSelectedObject in iSelectedObjects:
-        X_Y(iSelectedObject)
+iKompasDocument3D = KompasAPI7.IKompasDocument3D(iKompasDocument) #3д вид документа
+iSelectionManager = iKompasDocument3D.SelectionManager #Интерфейс выделенных объектов
+iSelectedObjects = iSelectionManager.SelectedObjects #Массив выделенных объектов
+if isinstance(iSelectedObjects, tuple): #Проверка, что выделено несколько
+    for iSelectedObject in iSelectedObjects: #Выбор объекта из массива
+        X_Y(iSelectedObject) #Открытие функции
 else:
     X_Y(iSelectedObject)
